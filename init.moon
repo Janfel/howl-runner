@@ -84,20 +84,12 @@ runner_mt =
         tmpf\delete! if tmpf
 
 
-to_runner = (cmd) ->
-    if type(cmd) == "function"
-        return cmd
-
-    runner = setmetatable :cmd, runner_mt
-    if type(cmd) == "table"
-        runner.quiet = cmd.quiet
-        runner.tmpfile = cmd.tmpfile
-        runner.bufmode = cmd.bufmode
-    else
-        runner.quiet = cmd\urfind "#q"
-        runner.tmpfile = cmd\urfind "#f"
-        runner.bufmode = cmd\umatch "#b:(%g+)"
-    runner
+to_runner = (cmd) -> setmetatable {
+    :cmd
+    quiet: cmd\urfind "#q"
+    tmpfile: cmd\urfind "#f"
+    bufmode: cmd\umatch "#b:(%g+)"
+}, runner_mt
 
 
 run_cmd = (cmd, code) -> to_runner(cmd)(code)
