@@ -41,30 +41,30 @@ to_runner = (cmd) -> setmetatable {
     read_stdout: true
     read_stderr: true
 
-  __call: (t, code) ->
+  __call: (code) =>
     -- Preparing the Process.
     local tmpf
-    if t.tmpfile
-      t.write_stdin = false
+    if @tmpfile
+      @write_stdin = false
       tmpf = File.tmpfile!
       tmpf.contents = code
-      t.cmd = t.cmd\gsub '#f', tostring(tmpf)
+      @cmd = @cmd\gsub '#f', tostring(tmpf)
 
     -- Running the Process.
-    proc = Process t
+    proc = Process @
     if proc.stdin
       proc.stdin\write code
       proc.stdin\close!
 
     -- The Process is running.
-    if t.bufmode or t.quiet
+    if @bufmode or @quiet
       out, err = proc\pump!
       log_msg = "=> Command '#{proc.command_line}' terminated (#{proc.exit_status_string})"
       log_msg ..= ": #{err}" if proc.exit_status != 0 and not err.is_blank
       log[proc.exited_normally and 'info' or 'warn'] log_msg
 
-      if t.bufmode -- Output into new Buffer.
-        howl.app\add_buffer with Buffer howl.mode.by_name t.bufmode
+      if @bufmode -- Output into new Buffer.
+        howl.app\add_buffer with Buffer howl.mode.by_name @bufmode
           .text = out
           .title = proc.command_line
           .modified = false
