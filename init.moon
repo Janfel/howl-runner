@@ -29,13 +29,7 @@ def_run_cmd name, cmd for name, cmd in pairs
   -- rust: 'cargo run'
   scss: 'sass -'
 
-
-to_runner = (cmd) -> setmetatable {
-  :cmd
-  quiet: cmd\urfind '#q'
-  tmpfile: cmd\urfind '#f'
-  bufmode: cmd\umatch '#b:(%g+)'
-},{
+runner_mt =
   __index:
     shell: howl.sys.env.SHELL or '/bin/sh'
     write_stdin: true
@@ -80,7 +74,14 @@ to_runner = (cmd) -> setmetatable {
 
     -- The Process has exited.
     tmpf\delete! if tmpf
-}
+
+
+to_runner = (cmd) -> setmetatable {
+  :cmd
+  quiet: cmd\urfind '#q'
+  tmpfile: cmd\urfind '#f'
+  bufmode: cmd\umatch '#b:(%g+)'
+}, runner_mt
 
 
 run_cmd = (cmd, code) -> to_runner(cmd)(code)
