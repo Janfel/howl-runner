@@ -29,6 +29,7 @@ def_run_cmd name, cmd for name, cmd in pairs
   -- rust: 'cargo run'
   scss: 'sass -'
 
+
 to_runner = (cmd) -> setmetatable {
   :cmd
   quiet: cmd\urfind '#q'
@@ -59,15 +60,17 @@ to_runner = (cmd) -> setmetatable {
     -- The Process is running.
     if @bufmode or @quiet
       out, err = proc\pump!
+
       log_msg = "=> Command '#{proc.command_line}' terminated (#{proc.exit_status_string})"
       log_msg ..= ": #{err}" if proc.exit_status != 0 and not err.is_blank
       log[proc.exited_normally and 'info' or 'warn'] log_msg
 
       if @bufmode -- Output into new Buffer.
-        howl.app\add_buffer with Buffer howl.mode.by_name @bufmode
+        buf = with Buffer howl.mode.by_name @bufmode
           .text = out
           .title = proc.command_line
           .modified = false
+        howl.app\add_buffer buf
 
     else -- Run in ProcessBuffer.
       buf = ProcessBuffer proc
@@ -82,7 +85,7 @@ to_runner = (cmd) -> setmetatable {
 
 run_cmd = (cmd, code) -> to_runner(cmd)(code)
 
-buffer_run_cmd = (cmd) -> run_cmd cmd, howl.app.editor.buffer.text
+buffer_run_cmd = (cmd) -> run_cmd(cmd, howl.app.editor.buffer.text)
 
 howl.command.register cmd for cmd in *{
   {
@@ -105,7 +108,6 @@ howl.command.register cmd for cmd in *{
     get_input_text: (result) -> result
   }
 }
-
 
 unload = -> howl.command.unregister cmd for cmd in *{
   'buffer-run'
