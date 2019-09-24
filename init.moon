@@ -65,7 +65,7 @@ howl.config.define
 
 for mode_name, command in pairs bundle_load 'defs'
   mode = howl.mode.by_name mode_name
-  mode.config.run_command = command if mode
+  howl.config.set_default 'run_command', command, mode.config_layer if mode
 
 
 run_cmd = (cmd, code) -> to_runner(cmd)(code)
