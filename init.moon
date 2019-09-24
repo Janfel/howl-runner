@@ -49,7 +49,6 @@ runner_mt =
     -- The Process has exited.
     tmpf\delete! if tmpf
 
-
 to_runner = (cmd) -> setmetatable {
   :cmd
   quiet: cmd\urfind '#q'
@@ -58,33 +57,16 @@ to_runner = (cmd) -> setmetatable {
 }, runner_mt
 
 
-
 howl.config.define
   name: 'run_command'
   description: 'The shell command used to execute code by the run command'
   type_of: 'string'
   default: 'cat -'
 
-def_run_cmd = (mode_name, command) ->
+for mode_name, command in pairs bundle_load 'defs'
   mode = howl.mode.by_name mode_name
   mode.config.run_command = command if mode
 
-def_run_cmd name, name for name in *{
-  'bash', 'lua', 'perl', 'php', 'python', 'ruby'
-}
-
-def_run_cmd name, cmd for name, cmd in pairs
-  awk: 'awk -f -'
-  clojure: 'clojure -'
-  dot: 'dot -Tpng | display #q'
-  html: 'python -m webbrowser #f #q'
-  javascript: 'node'
-  makefile: 'make -f -'
-  markdown: 'markdown #b:html'
-  moonscript: 'moon /dev/stdin'
-  pascal: 'instantfpc #f'
-  -- rust: 'cargo run'
-  scss: 'sass -'
 
 run_cmd = (cmd, code) -> to_runner(cmd)(code)
 
