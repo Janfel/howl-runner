@@ -72,7 +72,7 @@ run_cmd = (cmd, code) -> to_runner(cmd)(code)
 
 buffer_run_cmd = (cmd) -> run_cmd(cmd, howl.app.editor.buffer.text)
 
-howl.command.register cmd for cmd in *{
+commands = {
   {
     name: 'buffer-run'
     description: 'Executes the current buffer'
@@ -94,11 +94,9 @@ howl.command.register cmd for cmd in *{
   }
 }
 
-unload = -> howl.command.unregister cmd for cmd in *{
-  'buffer-run'
-  'buffer-run-as'
-  'buffer-run-with'
-}
+howl.command.register cmd for cmd in *commands
+unload = -> howl.command.unregister name for {:name} in *commands
+
 
 {
   info:
