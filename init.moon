@@ -2,32 +2,6 @@ import Buffer from howl
 import File, Process from howl.io
 import ProcessBuffer from howl.ui
 
-howl.config.define
-  name: 'run_command'
-  description: 'The shell command used to execute code by the run command'
-  type_of: 'string'
-  default: 'cat -'
-
-def_run_cmd = (mode_name, command) ->
-  mode = howl.mode.by_name mode_name
-  mode.config.run_command = command if mode
-
-def_run_cmd name, name for name in *{
-  'bash', 'lua', 'perl', 'php', 'python', 'ruby'
-}
-
-def_run_cmd name, cmd for name, cmd in pairs
-  awk: 'awk -f -'
-  clojure: 'clojure -'
-  dot: 'dot -Tpng | display #q'
-  html: 'python -m webbrowser #f #q'
-  javascript: 'node'
-  makefile: 'make -f -'
-  markdown: 'markdown #b:html'
-  moonscript: 'moon /dev/stdin'
-  pascal: 'instantfpc #f'
-  -- rust: 'cargo run'
-  scss: 'sass -'
 
 runner_mt =
   __index:
@@ -56,7 +30,7 @@ runner_mt =
       out, err = proc\pump!
 
       log_msg = "=> Command '#{proc.command_line}' terminated (#{proc.exit_status_string})"
-      log_msg ..= ": #{err}" if proc.exit_status != 0 and not err.is_blank
+      log_msg ..= ': '..err if proc.exit_status != 0 and not err.is_blank
       log[proc.exited_normally and 'info' or 'warn'] log_msg
 
       if @bufmode -- Output into new Buffer.
@@ -83,6 +57,34 @@ to_runner = (cmd) -> setmetatable {
   bufmode: cmd\umatch '#b:(%g+)'
 }, runner_mt
 
+
+
+howl.config.define
+  name: 'run_command'
+  description: 'The shell command used to execute code by the run command'
+  type_of: 'string'
+  default: 'cat -'
+
+def_run_cmd = (mode_name, command) ->
+  mode = howl.mode.by_name mode_name
+  mode.config.run_command = command if mode
+
+def_run_cmd name, name for name in *{
+  'bash', 'lua', 'perl', 'php', 'python', 'ruby'
+}
+
+def_run_cmd name, cmd for name, cmd in pairs
+  awk: 'awk -f -'
+  clojure: 'clojure -'
+  dot: 'dot -Tpng | display #q'
+  html: 'python -m webbrowser #f #q'
+  javascript: 'node'
+  makefile: 'make -f -'
+  markdown: 'markdown #b:html'
+  moonscript: 'moon /dev/stdin'
+  pascal: 'instantfpc #f'
+  -- rust: 'cargo run'
+  scss: 'sass -'
 
 run_cmd = (cmd, code) -> to_runner(cmd)(code)
 
